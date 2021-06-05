@@ -9,10 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
-
+import org.springframework.web.bind.annotation.RequestMapping;
+import static org.hamcrest.Matchers.is;
+import javax.transaction.Transactional;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
@@ -82,6 +85,30 @@ public class MovieControllerTest {
                 andExpect(status().isOk()).
                 andExpect(jsonPath("$.title").exists()).
                 andReturn();
+    }
+    @Test @Transactional @Rollback
+    public void testGetMovieRating() throws Exception {
+        Movie movie = new Movie();
+        movie.setTitle("Lord of The Rings");
+//        Movie movie2 = new Movie();
+//        movie2.setTitle("Home Alone");
+//        movie.setRating(4);
+//        repository.save(movie2);
+        repository.save(movie);
+
+
+        RequestBuilder rq = patch("/movies/rating/5/id/1").
+                content(asJsonString(movie));
+        this.mvc.perform(rq).
+                andExpect(status().isOk()).
+                andExpect(jsonPath("$.rating").isNumber());
+
+        RequestBuilder rq1 = patch("/movies/rating/5/id/9").
+                content(asJsonString(movie));
+        this.mvc.perform(rq1).
+                andExpect(status().isNotFound()).
+                andExpect(jsonPath("$.message",is("Movie Does not Exist")));
+
     }
 
     public static String asJsonString(final Object obj) {

@@ -37,4 +37,16 @@ public class MovieController {
         return movie.get();
     }
 
+    @PatchMapping(value = "/rating/{rating}/id/{id}")
+    public Movie submitRating(@PathVariable("rating") Integer rating,@PathVariable Long id){
+        Optional<Movie> existingMovie = this.movieRepository.findById(id);
+        if(existingMovie.isPresent()){
+            existingMovie.get().setRating(rating);
+            this.movieRepository.save(existingMovie.get());
+        }else{
+            throw new NoSuchElementException("Movie Does not Exist");
+        }
+        return existingMovie.get();
+    }
+
 }
