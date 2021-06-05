@@ -2,9 +2,11 @@ package com.galvanize.gmdbmovie.controller;
 
 import com.galvanize.gmdbmovie.domain.Actor;
 import com.galvanize.gmdbmovie.domain.Movie;
+import com.galvanize.gmdbmovie.dto.Rating;
 import com.galvanize.gmdbmovie.repository.MovieRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -41,12 +43,27 @@ public class MovieController {
     public Movie submitRating(@PathVariable("rating") Integer rating,@PathVariable Long id){
         Optional<Movie> existingMovie = this.movieRepository.findById(id);
         if(existingMovie.isPresent()){
-            existingMovie.get().setRating(rating);
+            List<Integer> ratings  = existingMovie.get().getRating();
+            ratings.add(rating);
             this.movieRepository.save(existingMovie.get());
         }else{
             throw new NoSuchElementException("Movie Does not Exist");
         }
         return existingMovie.get();
     }
-
+    
+    @GetMapping(value = "/avgrating/{id}")
+    public Movie getAverageRating(@PathVariable Long id){
+        Optional<Movie> existingMovie = this.movieRepository.findById(id);
+        if(existingMovie.isPresent()){
+            List<Integer> ratings  = existingMovie.get().getRating();
+            Integer avg = (ratings.stream().mapToInt(Integer::intValue).sum())/ratings.size();
+            Rating avgDto = new Rating();
+            avgDto.setAvgRating(avg);
+            existingMovie.get().setAvgRating(avgDto);
+        }else{
+            throw new NoSuchElementException("Movie Does not Exist");
+        }
+        return existingMovie.get();
+    }
 }

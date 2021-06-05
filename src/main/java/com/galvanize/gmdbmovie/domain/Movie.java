@@ -1,6 +1,9 @@
 package com.galvanize.gmdbmovie.domain;
 
+import com.galvanize.gmdbmovie.dto.Rating;
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,9 +16,23 @@ public class Movie {
     private Actor director;
     private String releaseYear;
     private String description;
-    private Integer rating;
+    @Column
+    @ElementCollection(targetClass = Integer.class)
+    private List<Integer> rating = new ArrayList<>();
     @OneToMany
     private List<Actor> actors;
+    @Transient
+    private Rating avgRating;
+
+    public Rating getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Rating avgRating) {
+        this.avgRating = avgRating;
+    }
+
+
 
     public Actor getDirector() {
         return director;
@@ -69,11 +86,11 @@ public class Movie {
         this.description = description;
     }
 
-    public Integer getRating() {
+    public List<Integer> getRating() {
         return rating;
     }
 
-    public void setRating(Integer rating) {
+    public void setRating(List<Integer> rating) {
         this.rating = rating;
     }
 }

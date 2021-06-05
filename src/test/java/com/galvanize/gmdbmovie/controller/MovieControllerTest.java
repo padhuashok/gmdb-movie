@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.is;
 import javax.transaction.Transactional;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -101,14 +102,25 @@ public class MovieControllerTest {
                 content(asJsonString(movie));
         this.mvc.perform(rq).
                 andExpect(status().isOk()).
-                andExpect(jsonPath("$.rating").isNumber());
+                andExpect(jsonPath("$.rating").isArray());
 
         RequestBuilder rq1 = patch("/movies/rating/5/id/9").
                 content(asJsonString(movie));
         this.mvc.perform(rq1).
                 andExpect(status().isNotFound()).
                 andExpect(jsonPath("$.message",is("Movie Does not Exist")));
+    }
 
+    @Test @Transactional @Rollback
+    public void testGetAvgRating() throws Exception{
+        Movie movie = new Movie();
+        movie.setTitle("Lord of The Rings");
+        movie.setRating(Arrays.asList(5,4));
+        repository.save(movie);
+        RequestBuilder rq = get("/movies/avgrating/1").
+                content(asJsonString(movie));
+        this.mvc.perform(rq).andExpect(status().isOk()).
+                andExpect(jsonPath("$.avgRating.avgRating",is(4)));
     }
 
     public static String asJsonString(final Object obj) {
