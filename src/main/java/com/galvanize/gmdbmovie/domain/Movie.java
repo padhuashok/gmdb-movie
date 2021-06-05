@@ -11,6 +11,11 @@ public class Movie {
     private String title;
     @OneToOne
     private Actor director;
+    private String releaseYear;
+    private String description;
+    private Integer rating;
+    @OneToMany
+    private List<Actor> actors;
 
     public Actor getDirector() {
         return director;
@@ -28,9 +33,6 @@ public class Movie {
         this.actors = actors;
     }
 
-    @OneToMany
-    private List<Actor> actors;
-
     public Long getId() {
         return id;
     }
@@ -47,8 +49,31 @@ public class Movie {
         this.title = title;
     }
 
-    public Movie(){
+    public Movie() {
 
     }
 
+    public String getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(String releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
+    }
 }

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "title": "Lord of The Rings",
+    "director": null,
+    "actors": []
+  },
+  {
+    "id": 2,
+    "title": "Home Alone",
+    "director": null,
+    "actors": []
+  }
+]

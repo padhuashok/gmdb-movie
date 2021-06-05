@@ -3,10 +3,10 @@ package com.galvanize.gmdbmovie.controller;
 import com.galvanize.gmdbmovie.domain.Actor;
 import com.galvanize.gmdbmovie.domain.Movie;
 import com.galvanize.gmdbmovie.repository.MovieRepository;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/movies")
@@ -27,4 +27,14 @@ public class MovieController {
     public Movie addMovie(@RequestBody Movie movie){
         return this.movieRepository.save(movie);
     }
+
+    @RequestMapping(method = RequestMethod.GET,value="/byTitle")
+    public Movie getMovieByTitle(@RequestParam String title){
+        Optional<Movie> movie = this.movieRepository.findByTitle(title);
+        if( !movie.isPresent()) {
+            throw new NoSuchElementException("Movie Does not Exist");
+        }
+        return movie.get();
+    }
+
 }
