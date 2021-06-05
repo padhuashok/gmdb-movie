@@ -1,8 +1,8 @@
 package com.galvanize.gmdbmovie.controller;
 
-import com.galvanize.gmdbmovie.domain.Actor;
 import com.galvanize.gmdbmovie.domain.Movie;
-import com.galvanize.gmdbmovie.dto.Rating;
+import com.galvanize.gmdbmovie.domain.Rating;
+import com.galvanize.gmdbmovie.dto.RatingDto;
 import com.galvanize.gmdbmovie.repository.MovieRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,10 +40,10 @@ public class MovieController {
     }
 
     @PatchMapping(value = "/rating/{rating}/id/{id}")
-    public Movie submitRating(@PathVariable("rating") Integer rating,@PathVariable Long id){
+    public Movie submitRating(@RequestBody() Rating rating, @PathVariable Long id){
         Optional<Movie> existingMovie = this.movieRepository.findById(id);
         if(existingMovie.isPresent()){
-            List<Integer> ratings  = existingMovie.get().getRating();
+            List<Rating> ratings  = existingMovie.get().getRating();
             ratings.add(rating);
             this.movieRepository.save(existingMovie.get());
         }else{
@@ -56,9 +56,9 @@ public class MovieController {
     public Movie getAverageRating(@PathVariable Long id){
         Optional<Movie> existingMovie = this.movieRepository.findById(id);
         if(existingMovie.isPresent()){
-            List<Integer> ratings  = existingMovie.get().getRating();
-            Integer avg = (ratings.stream().mapToInt(Integer::intValue).sum())/ratings.size();
-            Rating avgDto = new Rating();
+            List<Rating> ratings  = existingMovie.get().getRating();
+            Integer avg = (ratings.stream().map(e-> e.getRating()).mapToInt(Integer::intValue).sum())/ratings.size();
+            RatingDto avgDto = new RatingDto();
             avgDto.setAvgRating(avg);
             existingMovie.get().setAvgRating(avgDto);
         }else{

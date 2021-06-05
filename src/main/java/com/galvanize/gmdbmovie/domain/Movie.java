@@ -1,6 +1,6 @@
 package com.galvanize.gmdbmovie.domain;
 
-import com.galvanize.gmdbmovie.dto.Rating;
+import com.galvanize.gmdbmovie.dto.RatingDto;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -9,36 +9,35 @@ import java.util.List;
 @Entity
 public class Movie {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
     @OneToOne
-    private Actor director;
+    private User director;
     private String releaseYear;
     private String description;
-    @Column
-    @ElementCollection(targetClass = Integer.class)
-    private List<Integer> rating = new ArrayList<>();
+    @OneToMany
+    private List<Rating> rating = new ArrayList<>();
     @OneToMany
     private List<Actor> actors;
     @Transient
-    private Rating avgRating;
+    private RatingDto avgRating;
 
-    public Rating getAvgRating() {
+    public RatingDto getAvgRating() {
         return avgRating;
     }
 
-    public void setAvgRating(Rating avgRating) {
+    public void setAvgRating(RatingDto avgRating) {
         this.avgRating = avgRating;
     }
 
 
 
-    public Actor getDirector() {
+    public User getDirector() {
         return director;
     }
 
-    public void setDirector(Actor director) {
+    public void setDirector(User director) {
         this.director = director;
     }
 
@@ -86,11 +85,11 @@ public class Movie {
         this.description = description;
     }
 
-    public List<Integer> getRating() {
+    public List<Rating> getRating() {
         return rating;
     }
 
-    public void setRating(List<Integer> rating) {
+    public void setRating(List<Rating> rating) {
         this.rating = rating;
     }
 }

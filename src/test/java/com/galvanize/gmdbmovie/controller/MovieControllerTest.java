@@ -3,7 +3,10 @@ package com.galvanize.gmdbmovie.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.galvanize.gmdbmovie.domain.Movie;
+import com.galvanize.gmdbmovie.domain.Rating;
 import com.galvanize.gmdbmovie.repository.MovieRepository;
+import com.galvanize.gmdbmovie.repository.RatingRepository;
+import com.galvanize.gmdbmovie.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +35,12 @@ public class MovieControllerTest {
 
     @Autowired
     MovieRepository repository;
+
+    @Autowired
+    RatingRepository ratingRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     public void testListMovies() throws Exception {
@@ -91,10 +100,6 @@ public class MovieControllerTest {
     public void testGetMovieRating() throws Exception {
         Movie movie = new Movie();
         movie.setTitle("Lord of The Rings");
-//        Movie movie2 = new Movie();
-//        movie2.setTitle("Home Alone");
-//        movie.setRating(4);
-//        repository.save(movie2);
         repository.save(movie);
 
 
@@ -115,8 +120,16 @@ public class MovieControllerTest {
     public void testGetAvgRating() throws Exception{
         Movie movie = new Movie();
         movie.setTitle("Lord of The Rings");
-        movie.setRating(Arrays.asList(5,4));
+        Rating rating = new Rating();
+        rating.setRating(5);
+
+        Rating rating2 = new Rating();
+        rating2.setRating(3);
+        ratingRepository.save(rating);
+        ratingRepository.save(rating2);
+        movie.setRating(Arrays.asList(rating, rating2));
         repository.save(movie);
+        System.out.println("Movie ID: " + movie.getId());
         RequestBuilder rq = get("/movies/avgrating/1").
                 content(asJsonString(movie));
         this.mvc.perform(rq).andExpect(status().isOk()).
