@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.galvanize.gmdbmovie.domain.Movie;
 import com.galvanize.gmdbmovie.domain.Rating;
+import com.galvanize.gmdbmovie.domain.User;
 import com.galvanize.gmdbmovie.repository.MovieRepository;
 import com.galvanize.gmdbmovie.repository.RatingRepository;
 import com.galvanize.gmdbmovie.repository.UserRepository;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -102,15 +104,23 @@ public class MovieControllerTest {
         movie.setTitle("Lord of The Rings");
         repository.save(movie);
 
+        Rating rating = new Rating();
+        rating.setRating(5);
+        rating.setReview("Review added");
 
-        RequestBuilder rq = patch("/movies/rating/5/id/1").
-                content(asJsonString(movie));
+
+        RequestBuilder rq = patch("/movies/1/rating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(rating));
         this.mvc.perform(rq).
                 andExpect(status().isOk()).
                 andExpect(jsonPath("$.rating").isArray());
 
-        RequestBuilder rq1 = patch("/movies/rating/5/id/9").
-                content(asJsonString(movie));
+        RequestBuilder rq1 = patch("/movies/1000/rating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(rating));
         this.mvc.perform(rq1).
                 andExpect(status().isNotFound()).
                 andExpect(jsonPath("$.message",is("Movie Does not Exist")));
@@ -134,6 +144,63 @@ public class MovieControllerTest {
                 content(asJsonString(movie));
         this.mvc.perform(rq).andExpect(status().isOk()).
                 andExpect(jsonPath("$.avgRating.avgRating",is(4)));
+    }
+
+    @Test
+    public void testUserIsAbleToSeeSubmittedReview() throws Exception {
+        User user = new User();
+        user.setLastName("Frank");
+        user.setFirstName("Joe");
+        userRepository.save(user);
+
+        Rating rating = new Rating();
+        rating.setRating(5);
+        rating.setReview("Review added");
+        rating.setUser(user);
+        ratingRepository.save(rating);
+
+        Movie movie = new Movie();
+        movie.setTitle("Lord of The Rings");
+        movie.setRating(Arrays.asList(rating));
+        repository.save(movie);
+
+        RequestBuilder rq = get("/movies/1");
+        MvcResult result = this.mvc.perform(rq).
+                andExpect(status().isOk()).
+                andExpect(jsonPath("$.title").exists()).
+                andReturn();
+        String json = result.getResponse().getContentAsString();
+        Movie moveFromResp = new ObjectMapper().readValue(json, Movie.class);
+        assertEquals(user.getId(), moveFromResp.getRating().get(0).getUser().getId());
+        assertEquals(user.getFirstName(), moveFromResp.getRating().get(0).getUser().getFirstName());
+        assertEquals(user.getLastName(), moveFromResp.getRating().get(0).getUser().getLastName());
+        assertEquals("Review added", moveFromResp.getRating().get(0).getReview());
+    }
+
+    @Test
+    public void testSubmitStarRatingWhenRatingIsBlank() throws Exception{
+        User user = new User();
+        user.setLastName("Frank");
+        user.setFirstName("Joe");
+        userRepository.save(user);
+
+        Movie movie = new Movie();
+        movie.setTitle("Lord of The Rings");
+        repository.save(movie);
+
+
+        Rating rating = new Rating();
+        rating.setReview("Review added");
+        rating.setUser(user);
+
+        RequestBuilder rq1 = patch("/movies/1000/rating")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(rating));
+        this.mvc.perform(rq1).
+                andExpect(status().isBadRequest()).
+                andExpect(jsonPath("$.message",is("Rating is Required")));
+
     }
 
     public static String asJsonString(final Object obj) {

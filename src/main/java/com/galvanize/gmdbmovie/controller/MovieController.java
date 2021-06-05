@@ -25,7 +25,12 @@ public class MovieController {
         return this.movieRepository.findAll();
     }
 
-    @RequestMapping(method = RequestMethod.POST,value = "/add")
+    @RequestMapping(method = RequestMethod.GET,value="/{id}")
+    public Movie getMovieById(@PathVariable Long id){
+        return this.movieRepository.findById(id).get();
+    }
+
+    @PostMapping(value = "/add")
     public Movie addMovie(@RequestBody Movie movie){
         return this.movieRepository.save(movie);
     }
@@ -39,8 +44,11 @@ public class MovieController {
         return movie.get();
     }
 
-    @PatchMapping(value = "/rating/{rating}/id/{id}")
-    public Movie submitRating(@RequestBody() Rating rating, @PathVariable Long id){
+    @PatchMapping(value = "/{id}/rating")
+    public Movie submitRating(@RequestBody Rating rating, @PathVariable Long id){
+        if(rating.getRating() == null) {
+            throw new IllegalStateException("Rating is Required");
+        }
         Optional<Movie> existingMovie = this.movieRepository.findById(id);
         if(existingMovie.isPresent()){
             List<Rating> ratings  = existingMovie.get().getRating();
@@ -66,4 +74,5 @@ public class MovieController {
         }
         return existingMovie.get();
     }
+
 }

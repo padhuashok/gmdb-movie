@@ -18,4 +18,12 @@ public class ExceptionHelper {
         response.setMessage(ex.getMessage());
         return new ResponseEntity<Object>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(value = {IllegalStateException.class})
+    public ResponseEntity<Object> handleInvalidInputException(IllegalStateException ex) {
+        Response response = new Response();
+        response.setMessage(ex.getMessage());
+        return new ResponseEntity<Object>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }

@@ -3,12 +3,20 @@
     "id": 1,
     "title": "Lord of The Rings",
     "director": null,
-    "actors": []
+    "releaseYear": null,
+    "description": null,
+    "rating": [],
+    "actors": [],
+    "avgRating": null
   },
   {
     "id": 2,
     "title": "Home Alone",
     "director": null,
-    "actors": []
+    "releaseYear": null,
+    "description": null,
+    "rating": [],
+    "actors": [],
+    "avgRating": null
   }
 ]
